@@ -6,7 +6,7 @@ int main() {
 
     while (1) {
         PORTB ^= (1 << PB5); // Toggle LED
-        _delay_ms(10000);
+        _delay_ms(1000);
     }
 
     return 0;

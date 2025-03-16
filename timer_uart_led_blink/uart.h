@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#ifndef
+#ifndef F_CPU
 #define F_CPU 16000000UL
 #endif    
 #define BAUD_RATE 9600
@@ -25,16 +25,5 @@ void USART_send_string(const char *str) {
         USART_send(*str);
         str++;
     }
-}
-
-int main(void) {
-    USART_init();
-
-    while (1) {
-        USART_send_string("Hello, AVR!\r\n");
-        _delay_ms(1000);
-    }
-
-    return 0;
 }
 

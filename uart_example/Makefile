@@ -1,6 +1,6 @@
 # Project-specific settings
-SRC = main.c
-TARGET = main
+SRC = uart.c
+TARGET = uart
 #EXTRA_FLAGS = 
 
 # Include shared Makefile

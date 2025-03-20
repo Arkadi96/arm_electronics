@@ -1,5 +1,4 @@
 #include <avr/io.h>
-#include "uart.h"
 
 #define LED_PIN PB5
 
@@ -15,7 +14,6 @@ void timer1_init(void) {
 
 void setup(void) {
 	led_init();
-	USART_init();
 	timer1_init();
 }
 
@@ -27,6 +25,7 @@ int main(void) {
 	setup();
 	while (1) {
 		delay_3s();
+		TCNT1 = 18661;
 		TIFR1 |= (1 << TOV1);
 		PORTB ^= (1 << LED_PIN);
 	}

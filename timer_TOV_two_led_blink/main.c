@@ -7,8 +7,8 @@
 static int cnt = 0;
 
 void led_init(void) {
-	//DDRB |= (1 << LED_PIN1);
-	//DDRD |= (1 << LED_PIN2);
+	DDRB |= (1 << LED_PIN1);
+	DDRD |= (1 << LED_PIN2);
 }
 
 void timer1_init(void) {
@@ -30,13 +30,13 @@ void delay_0p2s(void) {
 
 void switch_led1() {
 	if (cnt % 5 == 0) {
-		//PORTB |= (1 << LED_PIN2);
+		PORTB |= (1 << LED_PIN2);
 	}
 }
 
 void switch_led2() {
 	if (cnt % 10 == 0) {
-		//PORTD |= (1 << LED_PIN2);
+		PORTD |= (1 << LED_PIN2);
 	}
 }
 
@@ -46,8 +46,8 @@ int main(void) {
 		switch_led1(); // changes state every 1 sec
 		switch_led2(); // changes state every 2 sec
 		delay_0p2s();
-		//PORTB &= ~(1 << LED_PIN1);
-		//PORTD &= ~(1 << LED_PIN2);
+		PORTB &= ~(1 << LED_PIN1);
+		PORTD &= ~(1 << LED_PIN2);
 		cnt += 1; 	// each cnt is 0.2 sec
 	}
 	return 0;

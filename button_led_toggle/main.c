@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/delay.h>
-//#include "uart.h"
 
 #define BUTTON_PIN PD7
 #define LED_PIN PD6

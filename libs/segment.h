@@ -25,6 +25,11 @@
 #define LED_PIN_6 PD6
 #define LED_PIN_7 PD7
 
+#define DIGIT_ENA_PIN_0 PB2
+#define DIGIT_ENA_PIN_1 PB3
+#define DIGIT_ENA_PIN_2 PB4
+#define DIGIT_ENA_PIN_3 PB5
+
 #define DIGIT_0 0b01111110
 #define DIGIT_1 0b01001000
 #define DIGIT_2 0b00111101
@@ -36,36 +41,93 @@
 #define DIGIT_8 0b01111111
 #define DIGIT_9 0b11101111
 
+#define LETTER_A 0b01011111
+#define LETTER_B DIGIT_8
+#define LETTER_C 0b10110110
+#define LETTER_D DIGIT_0
+#define LETTER_E 0b00110111
+#define LETTER_F 0b10010111
+#define LETTER_G 0b10010111
+#define LETTER_H 0b01011011
+#define LETTER_I DIGIT_1
+#define LETTER_J 0b01101000
+#define LETTER_K 0b01101000
+#define LETTER_L 0b00110010
+#define LETTER_S DIGIT_5
+#define LETTER_O DIGIT_0
+
 #define _GET_LED(x) LED_PIN_##x
 #define GET_LED(x) _GET_LED(x)
+#define _GET_DIGIT_ENA(x) DIGIT_ENA_PIN_##x
+#define GET_DIGIT_ENA(x) _GET_DIGIT_ENA(x)
 #define _GET_DIGIT(x) DIGIT_##x
 #define GET_DIGIT(x) _GET_DIGIT(x)
+#define _GET_LETTER(x) LETTER_##x
+#define GET_LETTER(x) _GET_LETTER(x)
 
 #define SET_PORT_BIT(port_idx, bit)                    \
     do {                                               \
-        if ((port_idx) == 0 || (port_idx == 1))        \
-            PORTB |= (1 << (bit));                     \
-        else                                           \
+        if (port_idx > 1 && port_idx < 8)              \
             PORTD |= (1 << (bit));                     \
+        else                                           \
+            PORTB |= (1 << (bit));                     \
     } while(0)
 
 #define UNSET_PORT_BIT(port_idx, bit)                  \
     do {                                               \
-        if ((port_idx) == 0 || (port_idx == 1))        \
-            PORTB &= ~(1 << (bit));                    \
-        else                                           \
+        if (port_idx > 1 && port_idx < 8)              \
             PORTD &= ~(1 << (bit));                    \
+        else                                           \
+            PORTB &= ~(1 << (bit));                    \
     } while(0)
 
 #define SET_DDR_BIT(port_idx, bit)                     \
     do {                                               \
-        if ((port_idx) == 0 || (port_idx == 1))        \
-            DDRB |= (1 << (bit));                      \
-        else                                           \
+        if (port_idx > 1 && port_idx < 8)              \
             DDRD |= (1 << (bit));                      \
+        else                                           \
+            DDRB |= (1 << (bit));                      \
     } while(0)
 
-static void seg_led_on(uint8_t idx) {
+void digit_ena_on(uint8_t idx) {
+    switch (idx) {
+        case 0:
+            UNSET_PORT_BIT(8, GET_DIGIT_ENA(0));
+            break;
+        case 1:
+            UNSET_PORT_BIT(9, GET_DIGIT_ENA(1));
+            break;
+        case 2:
+            UNSET_PORT_BIT(10, GET_DIGIT_ENA(2));
+            break;
+        case 3:
+            UNSET_PORT_BIT(11, GET_DIGIT_ENA(3));
+            break;
+        default:
+            UNSET_PORT_BIT(8, GET_DIGIT_ENA(0));
+    }
+}
+
+void digit_ena_off(uint8_t idx) {
+    switch (idx) {
+        case 0:
+            SET_PORT_BIT(8, GET_DIGIT_ENA(0));
+            break;
+        case 1:
+            SET_PORT_BIT(9, GET_DIGIT_ENA(1));
+            break;
+        case 2:
+            SET_PORT_BIT(10, GET_DIGIT_ENA(2));
+            break;
+        case 3:
+            SET_PORT_BIT(11, GET_DIGIT_ENA(3));
+            break;
+        default:
+            SET_PORT_BIT(8, GET_DIGIT_ENA(0));
+    }
+}
+
+static void led_on(uint8_t idx) {
     switch (idx) {
         case 0:
             SET_PORT_BIT(0, GET_LED(0));
@@ -96,7 +158,7 @@ static void seg_led_on(uint8_t idx) {
     }
 }
 
-static void seg_led_off(uint8_t idx) {
+static void led_off(uint8_t idx) {
     switch (idx) {
         case 0:
             UNSET_PORT_BIT(0, GET_LED(0));
@@ -128,22 +190,47 @@ static void seg_led_off(uint8_t idx) {
 }
 
 // Init LEDs for sensor
-void init_segment() {
-    SET_DDR_BIT(0, GET_LED(0));
-    SET_DDR_BIT(1, GET_LED(1));
-    SET_DDR_BIT(2, GET_LED(2));
-    SET_DDR_BIT(3, GET_LED(3));
-    SET_DDR_BIT(4, GET_LED(4));
-    SET_DDR_BIT(5, GET_LED(5));
-    SET_DDR_BIT(6, GET_LED(6));
-    SET_DDR_BIT(7, GET_LED(7));
+// cnt - LEDs count in 7 segment sensor
+void init_segment(uint8_t cnt) {
+    SET_DDR_BIT(0, GET_LED(2));
+    SET_DDR_BIT(1, GET_LED(3));
+    SET_DDR_BIT(2, GET_LED(4));
+    SET_DDR_BIT(3, GET_LED(5));
+    SET_DDR_BIT(4, GET_LED(6));
+    SET_DDR_BIT(5, GET_LED(7));
+    SET_DDR_BIT(6, GET_LED(0));
+    SET_DDR_BIT(7, GET_LED(1));
+
+    switch (cnt) {
+        case 2:
+            SET_DDR_BIT(8, GET_DIGIT_ENA(0));
+            SET_DDR_BIT(9, GET_DIGIT_ENA(1));
+            break;
+        case 3:
+            SET_DDR_BIT(8, GET_DIGIT_ENA(0));
+            SET_DDR_BIT(9, GET_DIGIT_ENA(1));
+            SET_DDR_BIT(10, GET_DIGIT_ENA(2));
+            break;
+        case 4:
+            SET_DDR_BIT(8, GET_DIGIT_ENA(0));
+            SET_DDR_BIT(9, GET_DIGIT_ENA(1));
+            SET_DDR_BIT(10, GET_DIGIT_ENA(2));
+            SET_DDR_BIT(11, GET_DIGIT_ENA(3));
+            break;
+        default:
+            SET_DDR_BIT(8, GET_DIGIT_ENA(0));
+    }
 }
 
 // Tunrs all leds off
 void turn_seg_off() {
     uint8_t i = 0;
     for (; i < 8; i++) {
-        seg_led_off(i);
+        led_off(i);
+    }
+    i = 0;
+    for (; i < 4; i++) {
+        digit_ena_off(i);
     }
 }
 
@@ -151,19 +238,25 @@ void turn_seg_off() {
 void turn_seg_on() {
     uint8_t i = 0;
     for (; i < 8; i++) {
-        seg_led_on(i);
+        led_on(i);
+    }
+    i = 0;
+    for (; i < 4; i++) {
+        digit_ena_on(i);
     }
 }
 
 // Tunrs digit on
-uint8_t display_digit(uint8_t idx) {
-    if (idx > 9) {
+// c - letter
+// idx - led number
+uint8_t display_digit(uint8_t c, uint8_t idx) {
+    if (c > 9) {
         return 0;
     }
     turn_seg_off();
     uint8_t i = 0;
     uint8_t s_led;
-    switch (idx) {
+    switch (c) {
         case 0:
             s_led = GET_DIGIT(0);
             break;
@@ -199,9 +292,42 @@ uint8_t display_digit(uint8_t idx) {
     }
     for (; i < 8; i++) {
         if (s_led & (1 << i)) {
-            seg_led_on(i);
+            led_on(i);
         }
     }
+    digit_ena_on(idx);
+    return 1;
+}
+
+// Display letter on sensor
+// c - letter
+// idx - led number
+uint8_t display_char(char c, uint8_t idx) {
+    turn_seg_off();
+    uint8_t i = 0;
+    uint8_t s_led;
+    switch (c) {
+        case 'H':
+            s_led = GET_LETTER(H);
+            break;
+        case 'E':
+            s_led = GET_LETTER(E);
+            break;
+        case 'L':
+            s_led = GET_LETTER(L);
+            break;
+        case 'O':
+            s_led = GET_LETTER(O);
+            break;
+        default:
+            s_led = GET_LETTER(E);
+    }
+    for (; i < 8; i++) {
+        if (s_led & (1 << i)) {
+            led_on(i);
+        }
+    }
+    digit_ena_on(idx);
     return 1;
 }
 

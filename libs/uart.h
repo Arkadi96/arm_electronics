@@ -2,7 +2,7 @@
 
 #ifndef F_CPU
 #define F_CPU 16000000UL
-#endif    
+#endif
 #define BAUD_RATE 9600
 #define MY_UBRR F_CPU/16/BAUD_RATE-1
 
@@ -17,6 +17,24 @@ void USART_init(void) {
 void USART_send(char data) {
     while (!(UCSR0A & (1 << UDRE0)));
     UDR0 = data;
+}
+
+void USART_send_scalar(uint16_t v) {
+    char buffer[6];
+    uint8_t i = 0;
+
+    if (v == 0) {
+        USART_send('0');
+    } else {
+        while (v > 0) {
+            buffer[i++] = '0' + (v % 10);
+            v /= 10;
+        }
+        while (i--) {
+            USART_send(buffer[i]);
+        }
+    }
+    USART_send('\n');
 }
 
 void USART_send_string(const char *str) {

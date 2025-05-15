@@ -14,6 +14,19 @@ void USART_init(void) {
     UCSR0B = (1 << RXEN0) | (1 << TXEN0);
 }
 
+uint8_t USART_receive() {
+    while (!(UCSR0A & (1 << RXC0)));
+    return UDR0;
+}
+
+// Non blocked version of USAR_receive
+uint8_t USART_receive_nb() {
+    if (UCSR0A & (1 << RXC0))
+		return UDR0;
+	else
+		return 0;
+}
+
 void USART_send(char data) {
     while (!(UCSR0A & (1 << UDRE0)));
     UDR0 = data;

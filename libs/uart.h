@@ -1,3 +1,6 @@
+#ifndef USART_H
+#define USART_H
+
 #include <avr/io.h>
 
 #ifndef F_CPU
@@ -56,3 +59,5 @@ void USART_send_string(const char *str) {
         str++;
     }
 }
+
+#endif
